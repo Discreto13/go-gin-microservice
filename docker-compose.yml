@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  userservice:
+    container_name: userservice
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+
+  db:
+    container_name: postgres
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data:rw
+    environment:
+      - POSTGRES_DB=main-db
+      - POSTGRES_USER=local-dev
+      - POSTGRES_HOST_AUTH_METHOD=trust
+
+volumes:
+  db-data:
