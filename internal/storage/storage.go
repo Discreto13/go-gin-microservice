@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/discreto13/go-gin-microservice/internal/core"
@@ -11,58 +12,48 @@ var ErrDuplicatedUserId = errors.New("user id already exist")
 var ErrUserNotFound = errors.New("user not found")
 
 type UserStorage struct {
-	users map[string]*core.User
+	db *sql.DB
 }
 
-func NewUserStorage() *UserStorage {
+func NewUserStorage(db *sql.DB) *UserStorage {
 	storage := &UserStorage{
-		users: make(map[string]*core.User),
-	}
-
-	// FIXME: remove adding default users for testing purposes
-	storage.users["1"] = &core.User{
-		Id:       "1",
-		Name:     "",
-		Email:    "some.name@gmail.com",
-		Birthday: "15.03.2022",
-	}
-	storage.users["12"] = &core.User{
-		Id:       "12",
-		Name:     "Some",
-		Email:    "some.12name@gmail.com",
-		Birthday: "15.03.2022",
-	}
-	storage.users["123"] = &core.User{
-		Id:       "123",
-		Name:     "Some Name",
-		Email:    "some.123name@gmail.com",
-		Birthday: "15.03.2022",
+		db: db,
 	}
 
 	return storage
 }
 
 func (s *UserStorage) Insert(ctx context.Context, newUser *core.User) error {
-	if _, ok := s.users[newUser.Id]; ok {
-		return ErrDuplicatedUserId
+	_, err := s.db.Exec("INSERT INTO users(id,name,email,birthday) VALUES($1,$2,$3,$4)",
+		newUser.Id, newUser.Name, newUser.Email, newUser.Birthday)
+	if err != nil {
+		return err
 	}
-
-	s.users[newUser.Id] = newUser
 	return nil
 }
 
 func (s *UserStorage) GetById(ctx context.Context, id string) (*core.User, error) {
-	user, ok := s.users[id]
-	if !ok {
-		return nil, ErrUserNotFound
+	var user core.User
+	err := s.db.QueryRow("SELECT * FROM users WHERE id = $1", id).Scan(&user.Id, &user.Name, &user.Email, &user.Birthday)
+	if err != nil {
+		return nil, err
 	}
-	return user, nil
+
+	return &user, nil
 }
 
 func (s *UserStorage) GetAll(ctx context.Context) ([]*core.User, error) {
-	usersList := make([]*core.User, 0, len(s.users))
-	for _, v := range s.users {
-		usersList = append(usersList, v)
+	rows, err := s.db.Query("SELECT * FROM users")
+	if err != nil {
+		return nil, err
 	}
+
+	var usersList []*core.User
+	for rows.Next() {
+		var user core.User
+		rows.Scan(&user.Id, &user.Name, &user.Email, &user.Birthday)
+		usersList = append(usersList, &user)
+	}
+
 	return usersList, nil
 }

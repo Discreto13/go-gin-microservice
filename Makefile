@@ -1,11 +1,5 @@
-BINARY_NAME=userservice
-
-clean:
-	rm -r build
-build: clean
-	go build -o build/${BINARY_NAME} ./cmd/api
-run: build
-	docker compose up
+run:
+	docker-compose --env-file .env up
 dep:
 	go mod download
 vet:

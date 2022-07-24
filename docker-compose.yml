@@ -2,26 +2,47 @@ version: '3'
 
 services:
   userservice:
-    container_name: userservice
+    container_name: ${SERVICE_NAME}
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - 8080:8080
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
     depends_on:
       - db
 
   db:
-    container_name: postgres
+    container_name: ${DB_HOST}
     image: postgres:alpine
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:${DB_PORT}"
     volumes:
       - db-data:/var/lib/postgresql/data:rw
     environment:
-      - POSTGRES_DB=main-db
-      - POSTGRES_USER=local-dev
-      - POSTGRES_HOST_AUTH_METHOD=trust
+      # - PGDB=${DB_NAME}
+      # - PGHOST=${DB_HOST}
+      - PGPORT=${DB_PORT}
+      - PGUSER=${DB_USER}
+      - PGPASSWORD=${DB_PASSWORD}
+      # - PGHOST_AUTH_METHOD=trust
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      - db
+    ports:
+      - "5050:80"
+    restart: unless-stopped
 
 volumes:
   db-data:
