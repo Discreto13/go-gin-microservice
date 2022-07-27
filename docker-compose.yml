@@ -25,12 +25,14 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data:rw
     environment:
-      # - PGDB=${DB_NAME}
-      # - PGHOST=${DB_HOST}
+      - PGDATABASE=${DB_NAME}
+      - PGHOST=${DB_HOST}
       - PGPORT=${DB_PORT}
-      - PGUSER=${DB_USER}
-      - PGPASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
       # - PGHOST_AUTH_METHOD=trust
+      # - PGUSER=${DB_USER}
+      # - PGPASSWORD=${DB_PASSWORD}
 
   pgadmin:
     image: dpage/pgadmin4

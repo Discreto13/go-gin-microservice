@@ -18,6 +18,7 @@ type UserStorage interface {
 	Insert(ctx context.Context, userService *core.User) error
 	GetById(ctx context.Context, id string) (*core.User, error)
 	GetAll(ctx context.Context) ([]*core.User, error)
+	Delete(ctx context.Context, id string) (bool, error)
 }
 
 func NewUserService(storage UserStorage) *userService {
@@ -68,4 +69,8 @@ func (s *userService) GetById(ctx context.Context, id string) (*core.User, error
 
 func (s *userService) GetAll(ctx context.Context) ([]*core.User, error) {
 	return s.storage.GetAll(ctx)
+}
+
+func (s *userService) Delete(ctx context.Context, id string) (bool, error) {
+	return s.storage.Delete(ctx, id)
 }

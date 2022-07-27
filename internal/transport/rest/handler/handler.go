@@ -36,6 +36,7 @@ func (h *Handler) registerAPI(router *gin.Engine) {
 			users.POST("", h.user.Create)
 			users.GET(":id", h.user.GetById)
 			users.GET("", h.user.GetAll)
+			users.DELETE(":id", h.user.Delete)
 		}
 	}
 }

@@ -57,3 +57,17 @@ func (s *UserStorage) GetAll(ctx context.Context) ([]*core.User, error) {
 
 	return usersList, nil
 }
+
+func (s *UserStorage) Delete(ctx context.Context, id string) (bool, error) {
+	res, err := s.db.Exec("DELETE FROM users WHERE id=$1", id)
+	if err != nil {
+		return false, err
+	}
+
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	return affected != 0, nil
+}

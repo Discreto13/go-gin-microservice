@@ -3,4 +3,4 @@ run:
 dep:
 	go mod download
 vet:
-	go vet
+	go vet ./...
